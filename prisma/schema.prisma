@@ -1,0 +1,159 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
+}
+
+model Domain {
+    verifyingContract String
+    name              String
+    version           String
+    chainId           Int
+
+    permissions Permission[]
+    intents     Intents[]
+
+    @@id([verifyingContract, name, version, chainId])
+}
+
+model Caveat {
+    enforcer String
+    terms    String
+
+    permissions CaveatsOnPermission[]
+
+    @@id([enforcer, terms])
+}
+
+model CaveatsOnPermission {
+    permissionId   String
+    caveatEnforcer String
+    caveatTerms    String
+
+    permission Permission @relation(fields: [permissionId], references: [id])
+    caveat     Caveat     @relation(fields: [caveatEnforcer, caveatTerms], references: [enforcer, terms])
+
+    @@id([permissionId, caveatEnforcer, caveatTerms])
+}
+
+model Permission {
+    id String @id
+
+    domain                  Domain @relation(fields: [domainVerifyingContract, domainName, domainVersion, domainChainId], references: [verifyingContract, name, version, chainId])
+    domainVerifyingContract String
+    domainName              String
+    domainVersion           String
+    domainChainId           Int
+
+    delegate  String
+    authority String
+    salt      String
+
+    caveats           CaveatsOnPermission[]
+    signedPermissions SignedPermission[]
+}
+
+model SignedPermission {
+    permission   Permission @relation(fields: [permissionId], references: [id])
+    permissionId String
+
+    signature String
+
+    intents SignedPermissionOnIntent[]
+
+    Address   Address? @relation(fields: [addressId], references: [id])
+    addressId String?
+
+    @@id([permissionId, signature])
+}
+
+model Transaction {
+    to       String
+    gasLimit Int
+    data     String
+
+    intents Intent[]
+
+    @@id([to, gasLimit, data])
+}
+
+model SignedPermissionOnIntent {
+    signedPermissionPermissionId String
+    signedPermissionSignature    String
+    intentId                     String
+
+    signedPermission SignedPermission @relation(fields: [signedPermissionPermissionId, signedPermissionSignature], references: [permissionId, signature])
+    intent           Intent           @relation(fields: [intentId], references: [id])
+
+    @@id([signedPermissionPermissionId, signedPermissionSignature, intentId])
+}
+
+model Intent {
+    id String @id @default(uuid())
+
+    transaction         Transaction                @relation(fields: [transactionTo, transactionGasLimit, transactionData], references: [to, gasLimit, data])
+    transactionTo       String
+    transactionGasLimit Int
+    transactionData     String
+    authority           SignedPermissionOnIntent[]
+
+    intents IntentOnIntents[]
+}
+
+model ReplayProtection {
+    nonce Int
+    queue Int
+
+    intents Intents[]
+
+    @@id([nonce, queue])
+}
+
+model IntentOnIntents {
+    intentId  String
+    intentsId String
+
+    intent  Intent  @relation(fields: [intentId], references: [id])
+    intents Intents @relation(fields: [intentsId], references: [id])
+
+    @@id([intentId, intentsId])
+}
+
+model Intents {
+    id String @id 
+
+    domain                  Domain @relation(fields: [domainVerifyingContract, domainName, domainVersion, domainChainId], references: [verifyingContract, name, version, chainId])
+    domainVerifyingContract String
+    domainName              String
+    domainVersion           String
+    domainChainId           Int
+
+    batch                 IntentOnIntents[]
+    replayProtection      ReplayProtection  @relation(fields: [replayProtectionNonce, replayProtectionQueue], references: [nonce, queue])
+    replayProtectionNonce Int
+    replayProtectionQueue Int
+
+    signedIntents SignedIntents[]
+}
+
+model SignedIntents {
+    intents   Intents @relation(fields: [intentsId], references: [id])
+    intentsId String
+
+    signature String
+
+    Address   Address? @relation(fields: [addressId], references: [id])
+    addressId String?
+
+    @@id([intentsId, signature])
+}
+
+model Address {
+    id String @id
+
+    signedPermissions SignedPermission[]
+    signedIntents     SignedIntents[]
+}
