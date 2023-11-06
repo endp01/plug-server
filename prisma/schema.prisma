@@ -64,8 +64,8 @@ model SignedPermission {
 
     intents SignedPermissionOnIntent[]
 
-    Address   Address? @relation(fields: [addressId], references: [id])
-    addressId String?
+    address   Address @relation(fields: [addressId], references: [id])
+    addressId String
 
     @@id([permissionId, signature])
 }
@@ -123,7 +123,7 @@ model IntentOnIntents {
 }
 
 model Intents {
-    id String @id 
+    id String @id
 
     domain                  Domain @relation(fields: [domainVerifyingContract, domainName, domainVersion, domainChainId], references: [verifyingContract, name, version, chainId])
     domainVerifyingContract String
@@ -145,14 +145,16 @@ model SignedIntents {
 
     signature String
 
-    Address   Address? @relation(fields: [addressId], references: [id])
-    addressId String?
+    Address   Address @relation(fields: [addressId], references: [id])
+    addressId String
 
     @@id([intentsId, signature])
 }
 
 model Address {
     id String @id
+
+    // * Don't know if we should include unsigned permissions and intents
 
     signedPermissions SignedPermission[]
     signedIntents     SignedIntents[]

@@ -44,17 +44,9 @@ export default t.router({
 			return emit(emitter, 'create', signedPermission)
 		}),
 	get: procedure
-		.input(z.array(z.string()).or(z.string()))
 		.output(v => v as Array<SignedPermission>)
 		.query(async req => {
-			const id =
-				req.input instanceof Array ? { in: req.input } : req.input
-
-			const signedPermissions = await p.signedPermission.findMany({
-				where: { id }
-			})
-
-			return signedPermissions
+			return await p.signedPermission.findMany()
 		}),
 	onCreate: procedure.subscription(() =>
 		onEmit<SignedPermission>(emitter, 'create')

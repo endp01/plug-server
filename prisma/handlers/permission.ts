@@ -108,6 +108,11 @@ export async function upsertSignedPermission<
 	//   doesn't have a way to do that yet.
 	const signedPermission = await p.signedPermission.create({
 		data: {
+			address: {
+				connect: {
+					id: signer
+				}
+			},
 			permission: {
 				connect: {
 					id: permission.id
@@ -119,18 +124,18 @@ export async function upsertSignedPermission<
 
 	// * Add the signedPermission to the Address.signedPermissions array.
 	// ? If the signedPermission already exists, we don't need to do anything.
-	await p.address.update({
-		where: {
-			id: signer
-		},
-		data: {
-			signedPermissions: {
-				connect: {
-					id: signedPermission.id
-				}
-			}
-		}
-	})
+	//	await p.address.update({
+	//		where: {
+	//			id: signer
+	//		},
+	//		data: {
+	//			signedPermissions: {
+	//				connect: {
+	//					id: signedPermission.id
+	//				}
+	//			}
+	//		}
+	//	})
 
 	return { signer, signedPermission }
 }
