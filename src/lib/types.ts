@@ -1,4 +1,4 @@
-import { ENVIRONMENTS, METHODS } from '@/server/lib/constants'
+import { ENVIRONMENTS, METHODS } from '@/lib/constants'
 
 export type EnvironmentKey = keyof typeof ENVIRONMENTS
 export type Environment = (typeof ENVIRONMENTS)[EnvironmentKey]

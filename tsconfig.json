@@ -1,0 +1,30 @@
+{
+	"compilerOptions": {
+		"target": "es2020",
+		"module": "CommonJS",
+		"moduleResolution": "node",
+		"strict": true,
+		"forceConsistentCasingInFileNames": true,
+		"noUncheckedIndexedAccess": true,
+		"noEmit": true,
+		"allowJs": true,
+		"baseUrl": "./",
+		"rootDir": "./",
+		"outDir": "./dist",
+		"esModuleInterop": true,
+		"sourceMap": true,
+		"declaration": true,
+		"declarationMap": true,
+		"skipLibCheck": true,
+		"paths": {
+			"@/*": ["./src/*"],
+        },
+		"downlevelIteration": true,
+		// "isolatedModules": true,
+		"lib": ["es2021", "dom"],
+		"resolveJsonModule": true,
+		"types": ["node"]
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules/**", "dist/**"]
+}

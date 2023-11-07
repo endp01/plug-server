@@ -5,8 +5,8 @@ import ws from 'ws'
 import { createExpressMiddleware } from '@trpc/server/adapters/express'
 import { applyWSSHandler } from '@trpc/server/adapters/ws'
 
-import { createContext } from './context'
-import { appRouter } from './routers'
+import { createContext } from '@/context'
+import { appRouter } from '@/routers'
 
 const port = 3000
 const app = express()
