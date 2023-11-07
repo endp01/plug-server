@@ -145,7 +145,7 @@ model SignedIntents {
 
     signature String
 
-    Address   Address @relation(fields: [addressId], references: [id])
+    address   Address @relation(fields: [addressId], references: [id])
     addressId String
 
     @@id([intentsId, signature])

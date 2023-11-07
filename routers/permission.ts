@@ -1,54 +1,53 @@
 import { SignedPermissionSchema } from '@nftchance/emporium-types/zod'
 
 import { EventEmitter } from 'stream'
-import { z } from 'zod'
 
 import type { SignedPermission } from '@prisma/client'
+import { TRPCError } from '@trpc/server'
 
-import { emit, onEmit } from '../lib/functions/emit'
+import { observable } from '@trpc/server/observable'
 import { getSignedPairSchema } from '../lib/functions/schema'
-import { p } from '../prisma'
-import {
-	upsertPermission,
-	upsertSignedPermission
-} from '../prisma/handlers/permission'
+import { upsertSignedPermission } from '../prisma/handlers/permission'
+
 import { t } from '../trpc'
+import { p } from '../prisma'
 
 const emitter = new EventEmitter()
 const procedure = t.procedure
 const schema = getSignedPairSchema(SignedPermissionSchema)
 
 export default t.router({
-	create: procedure
-		.input(schema)
-		.output(v => v as SignedPermission)
-		.mutation(async req => {
-			const { domain, message } = req.input
+    create: procedure
+        .input(schema)
+        .mutation(async req => {
+            const { domain, message } = req.input
 
-			// * Verify the base permission and get the signer.
-			const { signer, permission } = await upsertPermission({
-				domain,
-				permission: message.permission,
-				signature: message.signature
-			})
+            // * Add the signed permission object to the database.
+            try {
+                const { signedPermission } = await upsertSignedPermission({
+                    domain,
+                    permission: message.permission,
+                    signature: message.signature
+                })
 
-			// * Add the signed permission object to the database.
-			const { signedPermission } = await upsertSignedPermission({
-				signer,
-				permission,
-				signature: message.signature
-			})
+                emitter.emit('create', signedPermission)
 
-			// * Announce the event to the connected clients and return
-			//   SignedPermission object.
-			return emit(emitter, 'create', signedPermission)
-		}),
-	get: procedure
-		.output(v => v as Array<SignedPermission>)
-		.query(async req => {
-			return await p.signedPermission.findMany()
-		}),
-	onCreate: procedure.subscription(() =>
-		onEmit<SignedPermission>(emitter, 'create')
-	)
+                return signedPermission
+            } catch {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: 'Invalid message/signature body provided.'
+                })
+            }
+        }),
+    get: procedure.query(async () => {
+        return await p.signedPermission.findMany()
+    }),
+    onCreate: procedure.subscription(() => {
+        return observable<SignedPermission>(emit => {
+            emitter.on('create', emit.next)
+
+            return () => { emitter.off('create', emit.next) }
+        })
+    })
 })

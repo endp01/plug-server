@@ -1,6 +1,6 @@
 import {
     EIP712DomainSchema,
-    PermissionSchema
+    IntentsSchema
 } from '@nftchance/emporium-types/zod'
 
 import { z } from 'zod'
@@ -10,50 +10,30 @@ import { TRPCError } from '@trpc/server'
 import { f } from '../../framework'
 import { p } from '../../prisma'
 
-export async function upsertSignedPermission<
+export async function upsertSignedIntents<
     P extends {
         domain: z.infer<typeof EIP712DomainSchema>
-        permission: z.infer<typeof PermissionSchema>
+        intents: z.infer<typeof IntentsSchema>
         signature: `0x${string}`
     }
->({ domain, permission, signature }: P) {
-    const intent = f.build('Permission', permission, domain)
+>({ domain, intents, signature }: P) {
+    const intent = f.build('Intents', intents, domain)
 
     if (!intent)
         throw new TRPCError({
             code: 'BAD_REQUEST'
         })
 
-    const hash = intent.hash({ domain, message: permission })
+    const hash = intent.hash({ domain, message: intents })
     const signer = await intent.address({
         domain,
         signature: signature
     })
 
-    // * Prepare the body to create the Caveat objects if they don't exist.
-    const caveats = {
-        connectOrCreate: permission.caveats.map(caveat => {
-            return {
-                where: {
-                    permissionId_caveatEnforcer_caveatTerms: {
-                        permissionId: hash,
-                        caveatEnforcer: caveat.enforcer,
-                        caveatTerms: caveat.terms
-                    }
-                },
-                create: {
-                    permissionId: hash,
-                    caveatEnforcer: caveat.enforcer,
-                    caveatTerms: caveat.terms
-                }
-            }
-        })
-    }
-
-    const signedPermission = await p.signedPermission.upsert({
+    const signedIntents = await p.signedIntents.upsert({
         where: {
-            permissionId_signature: {
-                permissionId: hash,
+            intentsId_signature: {
+                intentsId: hash,
                 signature
             }
         },
@@ -68,7 +48,7 @@ export async function upsertSignedPermission<
                     }
                 }
             },
-            permission: {
+            intents: {
                 connectOrCreate: {
                     where: {
                         id: hash
@@ -79,7 +59,8 @@ export async function upsertSignedPermission<
                             connectOrCreate: {
                                 where: {
                                     verifyingContract_name_version_chainId: {
-                                        verifyingContract: domain.verifyingContract,
+                                        verifyingContract:
+                                            domain.verifyingContract,
                                         name: domain.name,
                                         version: domain.version,
                                         chainId: domain.chainId
@@ -89,10 +70,20 @@ export async function upsertSignedPermission<
                                 create: domain
                             }
                         },
-                        delegate: permission.delegate,
-                        authority: permission.authority,
-                        caveats,
-                        salt: permission.salt
+                        replayProtection: {
+                            connectOrCreate: {
+                                where: {
+                                    nonce_queue: {
+                                        nonce: 0,
+                                        queue: 0
+                                    }
+                                },
+                                create: {
+                                    nonce: 0,
+                                    queue: 0
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -101,5 +92,5 @@ export async function upsertSignedPermission<
         update: {}
     })
 
-    return { signer, signedPermission }
+    return { signer, signedIntents }
 }
