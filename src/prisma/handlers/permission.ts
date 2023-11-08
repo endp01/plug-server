@@ -5,18 +5,18 @@ import {
 
 import { z } from 'zod'
 
-import { TRPCError } from '@trpc/server'
-
 import { f } from '@/framework'
 import { p } from '@/prisma'
+import { TRPCError } from '@trpc/server'
 
 export async function upsertSignedPermission<
     P extends {
         domain: z.infer<typeof EIP712DomainSchema>
         permission: z.infer<typeof PermissionSchema>
         signature: `0x${string}`
+        commit?: boolean
     }
->({ domain, permission, signature }: P) {
+>({ domain, permission, signature, commit = true }: P) {
     const intent = f.build('Permission', permission, domain)
 
     if (!intent)
@@ -30,27 +30,7 @@ export async function upsertSignedPermission<
         signature: signature
     })
 
-    // * Prepare the body to create the Caveat objects if they don't exist.
-    const caveats = {
-        connectOrCreate: permission.caveats.map(caveat => {
-            return {
-                where: {
-                    permissionId_caveatEnforcer_caveatTerms: {
-                        permissionId: hash,
-                        caveatEnforcer: caveat.enforcer,
-                        caveatTerms: caveat.terms
-                    }
-                },
-                create: {
-                    permissionId: hash,
-                    caveatEnforcer: caveat.enforcer,
-                    caveatTerms: caveat.terms
-                }
-            }
-        })
-    }
-
-    const signedPermission = await p.signedPermission.upsert({
+    const query = {
         where: {
             permissionId_signature: {
                 permissionId: hash,
@@ -79,7 +59,8 @@ export async function upsertSignedPermission<
                             connectOrCreate: {
                                 where: {
                                     verifyingContract_name_version_chainId: {
-                                        verifyingContract: domain.verifyingContract,
+                                        verifyingContract:
+                                            domain.verifyingContract,
                                         name: domain.name,
                                         version: domain.version,
                                         chainId: domain.chainId
@@ -91,7 +72,22 @@ export async function upsertSignedPermission<
                         },
                         delegate: permission.delegate,
                         authority: permission.authority,
-                        caveats,
+                        caveats: {
+                            connectOrCreate: permission.caveats.map(caveat => ({
+                                where: {
+                                    permissionId_caveatEnforcer_caveatTerms: {
+                                        permissionId: hash,
+                                        caveatEnforcer: caveat.enforcer,
+                                        caveatTerms: caveat.terms
+                                    }
+                                },
+                                create: {
+                                    permissionId: hash,
+                                    caveatEnforcer: caveat.enforcer,
+                                    caveatTerms: caveat.terms
+                                }
+                            }))
+                        },
                         salt: permission.salt
                     }
                 }
@@ -99,7 +95,13 @@ export async function upsertSignedPermission<
             signature: signature
         },
         update: {}
-    })
+    }
 
-    return { signer, signedPermission }
+    if (commit) {
+        const signedPermission = await p.signedPermission.upsert(query)
+
+        return { query, signer, signedPermission }
+    }
+
+    return { query, signer }
 }

@@ -6,8 +6,8 @@ import type { SignedIntents } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 
 import { observable } from '@trpc/server/observable'
-import { getSignedPairSchema } from '../lib/functions/schema'
-import { upsertSignedIntents } from '../prisma/handlers/intents'
+import { getSignedPairSchema } from '@/lib/functions/schema'
+import { upsertSignedIntents } from '@/prisma/handlers/intents'
 
 import { t } from '../trpc'
 import { p } from '../prisma'
