@@ -4,10 +4,10 @@ import {
 } from '@nftchance/emporium-types/zod'
 
 import { z } from 'zod'
+import { TRPCError } from '@trpc/server'
 
 import { f } from '@/framework'
 import { p } from '@/prisma'
-import { TRPCError } from '@trpc/server'
 
 export async function upsertSignedPermission<
     P extends {

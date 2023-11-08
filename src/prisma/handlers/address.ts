@@ -1,15 +1,26 @@
 import { p } from '@/prisma'
 
-export async function upsertAddress(id: `0x${string}`) {
+export async function upsertAddress<P extends { 
+    address: `0x${string}`
+    commit?: boolean
+}>({ address, commit = true }: P) {
 	// ? Do we need an isAddress check or something here? Is the regex check enough?
-
-	return await p.address.upsert({
+    
+    const query = {
 		where: {
-			id
+			id: address
 		},
 		create: {
-			id
+			id: address
 		},
 		update: {}
-	})
+	}
+
+    if(commit) { 
+        const signer = await p.address.upsert(query)
+
+        return { query, signer }
+    }
+
+    return { query } 
 }

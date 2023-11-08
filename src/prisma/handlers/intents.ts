@@ -4,13 +4,11 @@ import {
 } from '@nftchance/emporium-types/zod'
 
 import { z } from 'zod'
+import { TRPCError } from '@trpc/server'
 
 import { f } from '@/framework'
 import { p } from '@/prisma'
-import { TRPCError } from '@trpc/server'
-import { upsertSignedPermission } from './permission'
-
-// import { upsertSignedPermission } from './permission'
+import { upsertSignedPermission } from '@/prisma/handlers/permission'
 
 export async function upsertSignedIntents<
 	P extends {
@@ -33,7 +31,7 @@ export async function upsertSignedIntents<
 		signature: signature
 	})
 
-	const signedIntents = await p.signedIntents.upsert({
+    const query = {
 		where: {
 			intentsId_signature: {
 				intentsId: hash,
@@ -101,7 +99,6 @@ export async function upsertSignedIntents<
 													}
 												},
 												authority: {
-													// * Place the map of signed permissions here
                                                     create: await Promise.all(intent.authority.map(async authority => {  
                                                         const { query } = await upsertSignedPermission({
                                                             domain, 
@@ -110,103 +107,9 @@ export async function upsertSignedIntents<
                                                             commit: false
                                                         })
 
-                                                        query
-
                                                         return {
 															signedPermission: {
-																connectOrCreate:
-																	// * Place the query retrieved from upsertSignedPermission
-																	{
-																		where: {
-																			permissionId_signature:
-																				{
-																					permissionId:
-																						'hash of permission',
-																					signature
-																				}
-																		},
-																		create: {
-																			address:
-																				{
-																					connectOrCreate:
-																						{
-																							where: {
-																								id: signer
-																							},
-																							create: {
-																								id: signer
-																							}
-																						}
-																				},
-																			permission:
-																				{
-																					connectOrCreate:
-																						{
-																							where: {
-																								id: 'hash of permission'
-																							},
-																							create: {
-																								id: 'hash of permission',
-																								domain: {
-																									connectOrCreate:
-																										{
-																											where: {
-																												verifyingContract_name_version_chainId:
-																													domain
-																											},
-																											create: domain
-																										}
-																								},
-																								delegate:
-																									'0x000000000000000000',
-																								authority:
-																									'0x00',
-																								caveats:
-																									{
-																										connectOrCreate:
-																											[
-																												{
-																													where: {
-																														permissionId_caveatEnforcer_caveatTerms:
-																															{
-																																permissionId:
-																																	'hash of permission',
-																																caveatEnforcer:
-																																	'0x000000000000000',
-																																caveatTerms:
-																																	'0x000000000000'
-																															}
-																													},
-																													create: {
-																														caveat: {
-																															connectOrCreate:
-																																{
-																																	where: {
-																																		enforcer_terms:
-																																			{
-																																				enforcer:
-																																					'0x000000000000000',
-																																				terms: '0x000000000000'
-																																			}
-																																	},
-																																	create: {
-																																		enforcer:
-																																			'0x000000000000000',
-																																		terms: '0x000000000000'
-																																	}
-																																}
-																														}
-																													}
-																												}
-																											]
-																									},
-																								salt: '0x00'
-																							}
-																						}
-																				},
-																			signature
-																		}
-																	}
+																connectOrCreate: query
 															}
 														}
                                                     }))
@@ -231,7 +134,14 @@ export async function upsertSignedIntents<
 			signature: signature
 		},
 		update: {}
-	})
+	}
 
-	return { signer, signedIntents }
+
+    if(commit) { 
+	    const signedIntents = await p.signedIntents.upsert(query)
+
+	    return { signer, query, signedIntents }
+    }
+
+	return { signer, query }
 }
