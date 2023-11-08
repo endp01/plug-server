@@ -92,7 +92,7 @@ model SignedPermissionOnIntent {
 }
 
 model Intent {
-    id String @id @default(uuid())
+    id String @id
 
     transaction         Transaction                @relation(fields: [transactionTo, transactionGasLimit, transactionData], references: [to, gasLimit, data])
     transactionTo       String
