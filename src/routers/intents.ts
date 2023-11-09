@@ -6,10 +6,10 @@ import type { SignedIntents } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import { observable } from '@trpc/server/observable'
 
-import { getSignedPairSchema } from '@/lib/functions/schema'
-import { upsertSignedIntents } from '@/handlers/intents'
-import { p } from '@/prisma'
-import { t } from '@/trpc'
+import { getSignedPairSchema } from '../lib/functions/schema'
+import { upsertSignedIntents } from '../handlers/intents'
+import { p } from '../prisma'
+import { t } from '../trpc'
 
 const emitter = new EventEmitter()
 const procedure = t.procedure

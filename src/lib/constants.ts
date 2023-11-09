@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { EmporiumSDK } from '@/sdk'
+import { EmporiumSDK } from '../sdk'
 
 const ENVIRONMENT_VARIABLES_SCHEMA = z.object({
 	DEBUG: z.boolean().optional().default(false),

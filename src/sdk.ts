@@ -4,8 +4,8 @@ import {
 	DEFAULT_METHOD,
 	DEFAULT_PAGE_SIZE,
 	ENVIRONMENTS
-} from '@/lib/constants'
-import { APIConfig, APIConnection, Environment } from '@/lib/types'
+} from './lib/constants'
+import { APIConfig, APIConnection, Environment } from './lib/types'
 
 export class EmporiumSDK {
 	public readonly basePath: Environment

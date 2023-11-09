@@ -1,5 +1,5 @@
-import permissionRouter from '@/routers/permission'
-import { adminProcedure, t } from '@/trpc'
+import permissionRouter from '../routers/permission'
+import { adminProcedure, t } from '../trpc'
 
 export const appRouter = t.router({
 	secretData: adminProcedure.query(({ ctx }) => {
