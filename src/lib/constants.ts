@@ -1,7 +1,5 @@
 import { z } from 'zod'
 
-import { EmporiumSDK } from '../sdk'
-
 const ENVIRONMENT_VARIABLES_SCHEMA = z.object({
 	DEBUG: z.boolean().optional().default(false),
 	API_KEY: z.string().optional().default(''),
@@ -24,7 +22,6 @@ export const DEFAULT_API_CONFIG = {
 	environmentKey: DEFAULT_ENVIRONMENT,
 	pageSize: 20
 }
-export const DEFAULT_API = new EmporiumSDK(DEFAULT_API_CONFIG)
 
 export const METHODS = ['GET', 'POST', 'PUT', 'DELETE'] as const
 export const DEFAULT_METHOD: (typeof METHODS)[number] = 'GET' as const

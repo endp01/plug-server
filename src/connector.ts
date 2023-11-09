@@ -34,5 +34,3 @@ export const getConnector = (url: string = DEFAULT_URL) => {
         ]
     })
 }
-
-// export const connector = getConnector()
