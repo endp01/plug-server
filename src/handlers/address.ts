@@ -1,4 +1,4 @@
-import { p } from '@/prisma'
+import { p } from '../prisma'
 
 export async function upsertAddress<
 	P extends {

@@ -7,9 +7,9 @@ import { z } from 'zod'
 
 import { TRPCError } from '@trpc/server'
 
-import { upsertSignedPermission } from '@/handlers/permission'
-import { f } from '@/framework'
-import { p } from '@/prisma'
+import { upsertSignedPermission } from '../handlers/permission'
+import { f } from '../framework'
+import { p } from '../prisma'
 
 export async function upsertSignedIntents<
 	P extends {
