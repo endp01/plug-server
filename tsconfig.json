@@ -18,6 +18,8 @@
 		"skipLibCheck": true,
 		"paths": {
 			"@/*": ["./src/*"],
+            "abitype": [".node_modules/abitype/src/index.ts"],
+            "viem": [".node_modules/viem/src/index.ts"]
         },
 		"downlevelIteration": true,
 		// "isolatedModules": true,

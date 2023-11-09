@@ -10,6 +10,7 @@ const ENVIRONMENT_VARIABLES_SCHEMA = z.object({
 
 const ENVIRONMENT_VARIABLES = ENVIRONMENT_VARIABLES_SCHEMA.parse(process.env)
 
+export const DEFAULT_URL = 'localhost:3000/trpc'
 export const ENVIRONMENTS = {
 	DEVELOPMENT: `http://localhost:${ENVIRONMENT_VARIABLES.PORT}/`,
 	PRODUCTION: 'https://api.emporium.com/'

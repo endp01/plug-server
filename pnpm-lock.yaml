@@ -7,16 +7,19 @@ settings:
 dependencies:
   '@nftchance/emporium-core':
     specifier: ^0.1.9
-    version: 0.1.9(abitype@0.10.2)(esbuild@0.19.5)(solady@0.0.138)(typescript@5.2.2)(viem@1.18.6)
+    version: 0.1.9(abitype@0.10.2)(esbuild@0.19.5)(solady@0.0.138)(typescript@5.2.2)(viem@1.18.9)
   '@nftchance/emporium-types':
     specifier: ^0.4.10
     version: 0.4.10(esbuild@0.19.5)(typescript@5.2.2)
   '@prisma/client':
     specifier: 5.5.2
     version: 5.5.2(prisma@5.5.2)
+  '@trpc/client':
+    specifier: ^10.43.1
+    version: 10.43.1(@trpc/server@10.43.1)
   '@trpc/server':
-    specifier: ^10.43.0
-    version: 10.43.0
+    specifier: ^10.43.1
+    version: 10.43.1
   cors:
     specifier: ^2.8.5
     version: 2.8.5
@@ -29,6 +32,9 @@ dependencies:
   typescript:
     specifier: ^5.2.2
     version: 5.2.2
+  viem:
+    specifier: ^1.18.9
+    version: 1.18.9(typescript@5.2.2)(zod@3.22.4)
   ws:
     specifier: ^8.14.2
     version: 8.14.2
@@ -436,7 +442,7 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: false
 
-  /@nftchance/emporium-core@0.1.9(abitype@0.10.2)(esbuild@0.19.5)(solady@0.0.138)(typescript@5.2.2)(viem@1.18.6):
+  /@nftchance/emporium-core@0.1.9(abitype@0.10.2)(esbuild@0.19.5)(solady@0.0.138)(typescript@5.2.2)(viem@1.18.9):
     resolution: {integrity: sha512-SOS12zvU0Xu36k6NI+4vbzPNqbeagcSk6WfbfuCf8ola0unFursfEZJac2AB2TcPMaLBq+2IQozEzRqqbdQdsg==}
     peerDependencies:
       abitype: '>=0.10.2'
@@ -451,7 +457,7 @@ packages:
       abitype: 0.10.2(typescript@5.2.2)(zod@3.22.4)
       solady: 0.0.138
       typescript: 5.2.2
-      viem: 1.18.6(typescript@5.2.2)(zod@3.22.4)
+      viem: 1.18.9(typescript@5.2.2)(zod@3.22.4)
     transitivePeerDependencies:
       - '@vue/compiler-sfc'
       - babel-plugin-macros
@@ -561,8 +567,17 @@ packages:
       - supports-color
     dev: false
 
-  /@trpc/server@10.43.0:
-    resolution: {integrity: sha512-1/h9KCPkTNNmpN5VKfKO4kPcl/W4Y9VQla4YGg4pydSh/+4b//0IPfvk3Oz4tz/tvWyAUlBKkBVhD3GfDLcAQA==}
+  /@trpc/client@10.43.1(@trpc/server@10.43.1):
+    resolution: {integrity: sha512-pkPtbDS0ck/2WZo2cWaPV11NFMII2I/nzse1Ggs5Cr0YczsZk3Z0DM77Sfb9FTSjmccYfkEtumHqxfTj6fRbbg==}
+    peerDependencies:
+      '@trpc/server': 10.43.1
+    dependencies:
+      '@trpc/server': 10.43.1
+    dev: false
+
+  /@trpc/server@10.43.1:
+    resolution: {integrity: sha512-rKOSCpJOb1MdTyJFqdf3QNNESDfPkbP+yBOZBM2x6iIOS4VlCfJqxsaSrb3uLPR6s8Ni7DhTu+cu/q1r0xOGcw==}
+    engines: {node: '>=18.0.0'}
     dev: false
 
   /@tsconfig/node10@1.0.9:
@@ -1820,8 +1835,8 @@ packages:
     engines: {node: '>= 0.8'}
     dev: false
 
-  /viem@1.18.6(typescript@5.2.2)(zod@3.22.4):
-    resolution: {integrity: sha512-oKkrxF2aqxjJ4pmm0ko7j+ZFRekP6VGIknSroV+6+dF+T31bscltPZwJ0fOJDxCOVhoVtxrKFRTkkasEVDblUA==}
+  /viem@1.18.9(typescript@5.2.2)(zod@3.22.4):
+    resolution: {integrity: sha512-eAXtoTwAFA3YEgjTYMb5ZTQrDC0UPx5qyZ4sv90TirVKepcM9mBPksTkC1SSWya0UdxhBmhEBL/CiYMjmGCTWg==}
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
