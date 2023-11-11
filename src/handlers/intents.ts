@@ -1,7 +1,7 @@
 import {
 	EIP712DomainSchema,
 	IntentsSchema
-} from '@nftchance/emporium-types/zod'
+} from '@nftchance/plug-types/zod'
 
 import { z } from 'zod'
 

@@ -1,52 +1,56 @@
-import { SignedPermissionSchema } from '@nftchance/emporium-types/zod'
+import type { Metadata } from "next";
 
-import { EventEmitter } from 'stream'
+import Link from "next/link";
 
-import type { SignedPermission } from '@prisma/client'
-import { TRPCError } from '@trpc/server'
-import { observable } from '@trpc/server/observable'
+import { Twitter } from "lucide-react";
 
-import { getSignedPairSchema } from '../lib/functions/schema'
-import { upsertSignedPermission } from '../handlers/permission'
-import { p } from '../prisma'
-import { t } from '../trpc'
+import Marquee from "./components/Marquee";
+import Theme from "./components/Theme";
 
-const emitter = new EventEmitter()
-const procedure = t.procedure
-const schema = getSignedPairSchema(SignedPermissionSchema)
+import "./globals.css";
 
-export default t.router({
-	create: procedure.input(schema).mutation(async req => {
-		const { domain, message } = req.input
+export const metadata: Metadata = {
+  title: "Plug",
+  description: '"If This, Then That" for EVM blockchain transactions.',
+};
 
-		// * Add the signed permission object to the database.
-		try {
-			const { signedPermission } = await upsertSignedPermission({
-				domain,
-				permission: message.permission,
-				signature: message.signature
-			})
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body className="bg-white dark:bg-black text-black dark:text-white w-screen min-h-screen">
+        <div className="h-full flex flex-col">
+          <Marquee />
 
-			emitter.emit('create', signedPermission)
+          <div className="mx-8 flex flex-col mb-auto">
+            <div className="flex flex-row gap-4 mt-4 mb-auto items-center justify-center">
+              <Link className="relative text-xl mr-8" href="/">
+                EMPORIUM
+                <span className="absolute top-0 h-min ml-1 p-1 leading-none rounded-md text-[8px] font-bold text-white bg-black dark:text-black dark:bg-white">
+                  ALPHA
+                </span>
+              </Link>
 
-			return signedPermission
-		} catch {
-			throw new TRPCError({
-				code: 'BAD_REQUEST',
-				message: 'Invalid message/signature body provided.'
-			})
-		}
-	}),
-	get: procedure.query(async () => {
-		return await p.signedPermission.findMany()
-	}),
-	onCreate: procedure.subscription(() => {
-		return observable<SignedPermission>(emit => {
-			emitter.on('create', emit.next)
+              <Theme />
+              <a
+                href="https://twitter.com/withplug"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Twitter
+                  className="text-black/60 dark:text-white/40"
+                  size={18}
+                />
+              </a>
+            </div>
+          </div>
 
-			return () => {
-				emitter.off('create', emit.next)
-			}
-		})
-	})
-})
+          {children}
+        </div>
+      </body>
+    </html>
+  );
+}

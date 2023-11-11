@@ -1,4 +1,4 @@
-import { Framework } from '@nftchance/emporium-core'
-import { constants } from '@nftchance/emporium-types'
+import { Plug } from "@nftchance/plug-core";
+import { constants } from "@nftchance/plug-types";
 
-export const f = new Framework('relay', '0.0.0', 0, constants.types, '0xdead')
+export const f = new Plug("relay", "0.0.0", 0, constants.types, "0xdead");

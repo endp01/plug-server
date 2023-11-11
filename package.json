@@ -1,5 +1,5 @@
 {
-	"name": "emporium-server",
+	"name": "@nftchance/plug-server",
 	"version": "0.0.0",
 	"description": "",
 	"main": "index.js",
@@ -10,8 +10,8 @@
 	"author": "",
 	"license": "BUSL-1.1",
 	"dependencies": {
-		"@nftchance/emporium-core": "^0.1.9",
-		"@nftchance/emporium-types": "^0.4.10",
+		"@nftchance/plug-core": "^0.1.9",
+		"@nftchance/plug-types": "^0.4.10",
 		"@prisma/client": "5.5.2",
 		"@trpc/client": "^10.43.1",
 		"@trpc/server": "^10.43.1",
