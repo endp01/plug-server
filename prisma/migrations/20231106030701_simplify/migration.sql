@@ -2,13 +2,13 @@
   Warnings:
 
   - You are about to drop the `Address` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Caveat` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Fuse` table. If the table is not empty, all the data it contains will be lost.
   - You are about to drop the `EIP712Domain` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Intent` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Permission` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `ReplayProtection` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `SignedIntents` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `SignedPermission` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Plug` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Pin` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Breaker` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `LivePlugs` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `LivePin` table. If the table is not empty, all the data it contains will be lost.
   - You are about to drop the `Transaction` table. If the table is not empty, all the data it contains will be lost.
 
 */
@@ -19,7 +19,7 @@ PRAGMA foreign_keys=on;
 
 -- DropTable
 PRAGMA foreign_keys=off;
-DROP TABLE "Caveat";
+DROP TABLE "Fuse";
 PRAGMA foreign_keys=on;
 
 -- DropTable
@@ -29,27 +29,27 @@ PRAGMA foreign_keys=on;
 
 -- DropTable
 PRAGMA foreign_keys=off;
-DROP TABLE "Intent";
+DROP TABLE "Plug";
 PRAGMA foreign_keys=on;
 
 -- DropTable
 PRAGMA foreign_keys=off;
-DROP TABLE "Permission";
+DROP TABLE "Pin";
 PRAGMA foreign_keys=on;
 
 -- DropTable
 PRAGMA foreign_keys=off;
-DROP TABLE "ReplayProtection";
+DROP TABLE "Breaker";
 PRAGMA foreign_keys=on;
 
 -- DropTable
 PRAGMA foreign_keys=off;
-DROP TABLE "SignedIntents";
+DROP TABLE "LivePlugs";
 PRAGMA foreign_keys=on;
 
 -- DropTable
 PRAGMA foreign_keys=off;
-DROP TABLE "SignedPermission";
+DROP TABLE "LivePin";
 PRAGMA foreign_keys=on;
 
 -- DropTable

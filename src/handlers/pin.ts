@@ -1,7 +1,4 @@
-import {
-  EIP712DomainSchema,
-  PermissionSchema,
-} from "@nftchance/plug-types/zod";
+import { EIP712DomainSchema, PinSchema } from "@nftchance/plug-types/zod";
 
 import { z } from "zod";
 
@@ -10,22 +7,22 @@ import { TRPCError } from "@trpc/server";
 import { f } from "../framework";
 import { p } from "../prisma";
 
-export async function upsertSignedPermission<
+export async function upsertLivePin<
   P extends {
     domain: z.infer<typeof EIP712DomainSchema>;
-    permission: z.infer<typeof PermissionSchema>;
+    pin: z.infer<typeof PinSchema>;
     signature: `0x${string}`;
     commit?: boolean;
   },
->({ domain, permission, signature, commit = true }: P) {
-  const intent = f.build("Permission", permission, domain);
+>({ domain, pin, signature, commit = true }: P) {
+  const intent = f.build("Pin", pin, domain);
 
   if (!intent)
     throw new TRPCError({
       code: "BAD_REQUEST",
     });
 
-  const hash = intent.hash({ domain, message: permission });
+  const hash = intent.hash({ domain, message: pin });
   const signer = await intent.address({
     domain,
     signature: signature,
@@ -33,8 +30,8 @@ export async function upsertSignedPermission<
 
   const query = {
     where: {
-      permissionId_signature: {
-        permissionId: hash,
+      pinId_signature: {
+        pinId: hash,
         signature,
       },
     },
@@ -49,7 +46,7 @@ export async function upsertSignedPermission<
           },
         },
       },
-      permission: {
+      pin: {
         connectOrCreate: {
           where: {
             id: hash,
@@ -66,29 +63,28 @@ export async function upsertSignedPermission<
                     chainId: domain.chainId,
                   },
                 },
-
                 create: domain,
               },
             },
-            delegate: permission.delegate,
-            authority: permission.authority,
-            caveats: {
-              connectOrCreate: permission.caveats.map((caveat) => ({
+            neutral: pin.neutral,
+            live: pin.live,
+            fuses: {
+              connectOrCreate: pin.fuses.map((fuse) => ({
                 where: {
-                  permissionId_caveatEnforcer_caveatTerms: {
-                    permissionId: hash,
-                    caveatEnforcer: caveat.enforcer,
-                    caveatTerms: caveat.terms,
+                  pinId_fuseNeutral_fuseLive: {
+                    pinId: hash,
+                    fuseNeutral: fuse.neutral,
+                    fuseLive: fuse.live,
                   },
                 },
                 create: {
-                  permissionId: hash,
-                  caveatEnforcer: caveat.enforcer,
-                  caveatTerms: caveat.terms,
+                  pinId: hash,
+                  fuseNeutral: fuse.neutral,
+                  fuseLive: fuse.live,
                 },
               })),
             },
-            salt: permission.salt,
+            salt: pin.salt,
           },
         },
       },
@@ -98,9 +94,9 @@ export async function upsertSignedPermission<
   };
 
   if (commit) {
-    const signedPermission = await p.signedPermission.upsert(query);
+    const livePin = await p.livePin.upsert(query);
 
-    return { query, signer, signedPermission };
+    return { query, signer, livePin };
   }
 
   return { query, signer };

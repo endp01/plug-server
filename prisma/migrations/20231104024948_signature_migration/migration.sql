@@ -1,57 +1,57 @@
 /*
   Warnings:
 
-  - You are about to drop the column `domainId` on the `SignedPermission` table. All the data in the column will be lost.
-  - You are about to drop the column `domainId` on the `SignedIntents` table. All the data in the column will be lost.
-  - Added the required column `domainId` to the `Permission` table without a default value. This is not possible if the table is not empty.
+  - You are about to drop the column `domainId` on the `LivePin` table. All the data in the column will be lost.
+  - You are about to drop the column `domainId` on the `LivePlugs` table. All the data in the column will be lost.
+  - Added the required column `domainId` to the `Pin` table without a default value. This is not possible if the table is not empty.
 
 */
 -- RedefineTables
 PRAGMA foreign_keys=OFF;
-CREATE TABLE "new_SignedPermission" (
+CREATE TABLE "new_LivePin" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "permissionId" TEXT NOT NULL,
+    "pinId" TEXT NOT NULL,
     "signature" TEXT NOT NULL,
     "intentId" TEXT,
     "addressId" TEXT,
-    CONSTRAINT "SignedPermission_addressId_fkey" FOREIGN KEY ("addressId") REFERENCES "Address" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "SignedPermission_intentId_fkey" FOREIGN KEY ("intentId") REFERENCES "Intent" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "SignedPermission_permissionId_fkey" FOREIGN KEY ("permissionId") REFERENCES "Permission" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "LivePin_addressId_fkey" FOREIGN KEY ("addressId") REFERENCES "Address" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "LivePin_intentId_fkey" FOREIGN KEY ("intentId") REFERENCES "Plug" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "LivePin_pinId_fkey" FOREIGN KEY ("pinId") REFERENCES "Pin" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
-INSERT INTO "new_SignedPermission" ("addressId", "id", "intentId", "permissionId", "signature") SELECT "addressId", "id", "intentId", "permissionId", "signature" FROM "SignedPermission";
-DROP TABLE "SignedPermission";
-ALTER TABLE "new_SignedPermission" RENAME TO "SignedPermission";
-CREATE TABLE "new_Intent" (
+INSERT INTO "new_LivePin" ("addressId", "id", "intentId", "pinId", "signature") SELECT "addressId", "id", "intentId", "pinId", "signature" FROM "LivePin";
+DROP TABLE "LivePin";
+ALTER TABLE "new_LivePin" RENAME TO "LivePin";
+CREATE TABLE "new_Plug" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "domainId" TEXT,
     "transactionId" TEXT NOT NULL,
-    "signedIntentsId" TEXT,
-    CONSTRAINT "Intent_domainId_fkey" FOREIGN KEY ("domainId") REFERENCES "EIP712Domain" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "Intent_signedIntentsId_fkey" FOREIGN KEY ("signedIntentsId") REFERENCES "SignedIntents" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "Intent_transactionId_fkey" FOREIGN KEY ("transactionId") REFERENCES "Transaction" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    "signedPlugsId" TEXT,
+    CONSTRAINT "Plug_domainId_fkey" FOREIGN KEY ("domainId") REFERENCES "EIP712Domain" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "Plug_signedPlugsId_fkey" FOREIGN KEY ("signedPlugsId") REFERENCES "LivePlugs" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "Plug_transactionId_fkey" FOREIGN KEY ("transactionId") REFERENCES "Transaction" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
-INSERT INTO "new_Intent" ("id", "signedIntentsId", "transactionId") SELECT "id", "signedIntentsId", "transactionId" FROM "Intent";
-DROP TABLE "Intent";
-ALTER TABLE "new_Intent" RENAME TO "Intent";
-CREATE TABLE "new_Permission" (
+INSERT INTO "new_Plug" ("id", "signedPlugsId", "transactionId") SELECT "id", "signedPlugsId", "transactionId" FROM "Plug";
+DROP TABLE "Plug";
+ALTER TABLE "new_Plug" RENAME TO "Plug";
+CREATE TABLE "new_Pin" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "domainId" TEXT NOT NULL,
     "delegate" TEXT NOT NULL,
     "authority" TEXT NOT NULL,
     "salt" TEXT NOT NULL,
-    CONSTRAINT "Permission_domainId_fkey" FOREIGN KEY ("domainId") REFERENCES "EIP712Domain" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "Pin_domainId_fkey" FOREIGN KEY ("domainId") REFERENCES "EIP712Domain" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
-INSERT INTO "new_Permission" ("authority", "delegate", "id", "salt") SELECT "authority", "delegate", "id", "salt" FROM "Permission";
-DROP TABLE "Permission";
-ALTER TABLE "new_Permission" RENAME TO "Permission";
-CREATE TABLE "new_SignedIntents" (
+INSERT INTO "new_Pin" ("authority", "delegate", "id", "salt") SELECT "authority", "delegate", "id", "salt" FROM "Pin";
+DROP TABLE "Pin";
+ALTER TABLE "new_Pin" RENAME TO "Pin";
+CREATE TABLE "new_LivePlugs" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "signature" TEXT NOT NULL,
     "addressId" TEXT,
-    CONSTRAINT "SignedIntents_addressId_fkey" FOREIGN KEY ("addressId") REFERENCES "Address" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    CONSTRAINT "LivePlugs_addressId_fkey" FOREIGN KEY ("addressId") REFERENCES "Address" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
-INSERT INTO "new_SignedIntents" ("addressId", "id", "signature") SELECT "addressId", "id", "signature" FROM "SignedIntents";
-DROP TABLE "SignedIntents";
-ALTER TABLE "new_SignedIntents" RENAME TO "SignedIntents";
+INSERT INTO "new_LivePlugs" ("addressId", "id", "signature") SELECT "addressId", "id", "signature" FROM "LivePlugs";
+DROP TABLE "LivePlugs";
+ALTER TABLE "new_LivePlugs" RENAME TO "LivePlugs";
 PRAGMA foreign_key_check;
 PRAGMA foreign_keys=ON;

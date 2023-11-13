@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "Caveat" (
+CREATE TABLE "Fuse" (
     "enforcer" TEXT NOT NULL,
     "terms" TEXT NOT NULL,
 
@@ -7,18 +7,18 @@ CREATE TABLE "Caveat" (
 );
 
 -- CreateTable
-CREATE TABLE "CaveatsOnPermission" (
-    "caveatEnforcer" TEXT NOT NULL,
-    "caveatTerms" TEXT NOT NULL,
-    "permissionId" TEXT NOT NULL,
+CREATE TABLE "FusesOnPin" (
+    "fuseEnforcer" TEXT NOT NULL,
+    "fuseTerms" TEXT NOT NULL,
+    "pinId" TEXT NOT NULL,
 
-    PRIMARY KEY ("caveatEnforcer", "caveatTerms", "permissionId"),
-    CONSTRAINT "CaveatsOnPermission_caveatEnforcer_caveatTerms_fkey" FOREIGN KEY ("caveatEnforcer", "caveatTerms") REFERENCES "Caveat" ("enforcer", "terms") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "CaveatsOnPermission_permissionId_fkey" FOREIGN KEY ("permissionId") REFERENCES "Permission" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    PRIMARY KEY ("fuseEnforcer", "fuseTerms", "pinId"),
+    CONSTRAINT "FusesOnPin_fuseEnforcer_fuseTerms_fkey" FOREIGN KEY ("fuseEnforcer", "fuseTerms") REFERENCES "Fuse" ("enforcer", "terms") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "FusesOnPin_pinId_fkey" FOREIGN KEY ("pinId") REFERENCES "Pin" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "Permission" (
+CREATE TABLE "Pin" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "delegator" TEXT NOT NULL,
     "authority" TEXT NOT NULL,

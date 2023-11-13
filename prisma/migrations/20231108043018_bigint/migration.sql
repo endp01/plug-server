@@ -1,44 +1,44 @@
 /*
   Warnings:
 
-  - You are about to alter the column `transactionGasLimit` on the `Intent` table. The data in that column could be lost. The data in that column will be cast from `Int` to `BigInt`.
-  - The primary key for the `SignedPermissionOnIntent` table will be changed. If it partially fails, the table could be left without primary key constraint.
+  - You are about to alter the column `transactionvoltage` on the `Plug` table. The data in that column could be lost. The data in that column will be cast from `Int` to `BigInt`.
+  - The primary key for the `LivePinOnPlug` table will be changed. If it partially fails, the table could be left without primary key constraint.
   - The primary key for the `Transaction` table will be changed. If it partially fails, the table could be left without primary key constraint.
-  - You are about to alter the column `gasLimit` on the `Transaction` table. The data in that column could be lost. The data in that column will be cast from `Int` to `BigInt`.
+  - You are about to alter the column `voltage` on the `Transaction` table. The data in that column could be lost. The data in that column will be cast from `Int` to `BigInt`.
 
 */
 -- RedefineTables
 PRAGMA foreign_keys=OFF;
-CREATE TABLE "new_Intent" (
+CREATE TABLE "new_Plug" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "transactionTo" TEXT NOT NULL,
-    "transactionGasLimit" BIGINT NOT NULL,
+    "transactionvoltage" BIGINT NOT NULL,
     "transactionData" TEXT NOT NULL,
-    CONSTRAINT "Intent_transactionTo_transactionGasLimit_transactionData_fkey" FOREIGN KEY ("transactionTo", "transactionGasLimit", "transactionData") REFERENCES "Transaction" ("to", "gasLimit", "data") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "Plug_transactionTo_transactionvoltage_transactionData_fkey" FOREIGN KEY ("transactionTo", "transactionvoltage", "transactionData") REFERENCES "Transaction" ("to", "voltage", "data") ON DELETE RESTRICT ON UPDATE CASCADE
 );
-INSERT INTO "new_Intent" ("id", "transactionData", "transactionGasLimit", "transactionTo") SELECT "id", "transactionData", "transactionGasLimit", "transactionTo" FROM "Intent";
-DROP TABLE "Intent";
-ALTER TABLE "new_Intent" RENAME TO "Intent";
-CREATE TABLE "new_SignedPermissionOnIntent" (
-    "signedPermissionPermissionId" TEXT NOT NULL,
-    "signedPermissionSignature" TEXT NOT NULL,
+INSERT INTO "new_Plug" ("id", "transactionData", "transactionvoltage", "transactionTo") SELECT "id", "transactionData", "transactionvoltage", "transactionTo" FROM "Plug";
+DROP TABLE "Plug";
+ALTER TABLE "new_Plug" RENAME TO "Plug";
+CREATE TABLE "new_LivePinOnPlug" (
+    "signedPinPinId" TEXT NOT NULL,
+    "signedPinSignature" TEXT NOT NULL,
     "intentId" TEXT NOT NULL,
 
-    PRIMARY KEY ("signedPermissionPermissionId", "signedPermissionSignature"),
-    CONSTRAINT "SignedPermissionOnIntent_signedPermissionPermissionId_signedPermissionSignature_fkey" FOREIGN KEY ("signedPermissionPermissionId", "signedPermissionSignature") REFERENCES "SignedPermission" ("permissionId", "signature") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "SignedPermissionOnIntent_intentId_fkey" FOREIGN KEY ("intentId") REFERENCES "Intent" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    PRIMARY KEY ("signedPinPinId", "signedPinSignature"),
+    CONSTRAINT "LivePinOnPlug_signedPinPinId_signedPinSignature_fkey" FOREIGN KEY ("signedPinPinId", "signedPinSignature") REFERENCES "LivePin" ("pinId", "signature") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "LivePinOnPlug_intentId_fkey" FOREIGN KEY ("intentId") REFERENCES "Plug" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
-INSERT INTO "new_SignedPermissionOnIntent" ("intentId", "signedPermissionPermissionId", "signedPermissionSignature") SELECT "intentId", "signedPermissionPermissionId", "signedPermissionSignature" FROM "SignedPermissionOnIntent";
-DROP TABLE "SignedPermissionOnIntent";
-ALTER TABLE "new_SignedPermissionOnIntent" RENAME TO "SignedPermissionOnIntent";
+INSERT INTO "new_LivePinOnPlug" ("intentId", "signedPinPinId", "signedPinSignature") SELECT "intentId", "signedPinPinId", "signedPinSignature" FROM "LivePinOnPlug";
+DROP TABLE "LivePinOnPlug";
+ALTER TABLE "new_LivePinOnPlug" RENAME TO "LivePinOnPlug";
 CREATE TABLE "new_Transaction" (
     "to" TEXT NOT NULL,
-    "gasLimit" BIGINT NOT NULL,
+    "voltage" BIGINT NOT NULL,
     "data" TEXT NOT NULL,
 
-    PRIMARY KEY ("to", "gasLimit", "data")
+    PRIMARY KEY ("to", "voltage", "data")
 );
-INSERT INTO "new_Transaction" ("data", "gasLimit", "to") SELECT "data", "gasLimit", "to" FROM "Transaction";
+INSERT INTO "new_Transaction" ("data", "voltage", "to") SELECT "data", "voltage", "to" FROM "Transaction";
 DROP TABLE "Transaction";
 ALTER TABLE "new_Transaction" RENAME TO "Transaction";
 PRAGMA foreign_key_check;

@@ -13,147 +13,142 @@ model Domain {
     version           String
     chainId           Int
 
-    permissions Permission[]
-    intents     Intents[]
+    pins  Pin[]
+    plugs Plugs[]
 
     @@id([verifyingContract, name, version, chainId])
 }
 
-model Caveat {
-    enforcer String
-    terms    String
+model Fuse {
+    neutral String
+    live    String
 
-    permissions CaveatsOnPermission[]
+    pins FusesOnPin[]
 
-    @@id([enforcer, terms])
+    @@id([neutral, live])
 }
 
-model CaveatsOnPermission {
-    permissionId   String
-    caveatEnforcer String
-    caveatTerms    String
+model FusesOnPin {
+    pinId       String
+    fuseNeutral String
+    fuseLive    String
 
-    permission Permission @relation(fields: [permissionId], references: [id])
-    caveat     Caveat     @relation(fields: [caveatEnforcer, caveatTerms], references: [enforcer, terms])
+    pin  Pin  @relation(fields: [pinId], references: [id])
+    fuse Fuse @relation(fields: [fuseNeutral, fuseLive], references: [neutral, live])
 
-    @@id([permissionId, caveatEnforcer, caveatTerms])
+    @@id([pinId, fuseNeutral, fuseLive])
 }
 
-model Permission {
+model Pin {
     id String @id
 
-    domain                  Domain @relation(fields: [domainVerifyingContract, domainName, domainVersion, domainChainId], references: [verifyingContract, name, version, chainId])
+    domain                  Domain       @relation(fields: [domainVerifyingContract, domainName, domainVersion, domainChainId], references: [verifyingContract, name, version, chainId])
     domainVerifyingContract String
     domainName              String
     domainVersion           String
     domainChainId           Int
+    neutral                 String
+    live                    String
+    salt                    String
+    fuses                   FusesOnPin[]
 
-    delegate  String
-    authority String
-    salt      String
-
-    caveats           CaveatsOnPermission[]
-    signedPermissions SignedPermission[]
+    signedPins LivePin[]
 }
 
-model SignedPermission {
-    permission   Permission @relation(fields: [permissionId], references: [id])
-    permissionId String
+model LivePin {
+    pin   Pin    @relation(fields: [pinId], references: [id])
+    pinId String
 
     signature String
 
-    intents SignedPermissionOnIntent[]
+    plugs LivePinOnPlug[]
 
     address   Address @relation(fields: [addressId], references: [id])
     addressId String
 
-    @@id([permissionId, signature])
+    @@id([pinId, signature])
 }
 
-model Transaction {
-    to       String
-    gasLimit BigInt
-    data     String
+model Current {
+    ground  String
+    voltage BigInt
+    data    String
 
-    intents Intent[]
+    plugs Plug[]
 
-    @@id([to, gasLimit, data])
+    @@id([ground, voltage, data])
 }
 
-model SignedPermissionOnIntent {
-    signedPermissionPermissionId String
-    signedPermissionSignature    String
-    intentId                     String
+model LivePinOnPlug {
+    livePin          LivePin @relation(fields: [livePinId, livePinSignature], references: [pinId, signature])
+    livePinId        String
+    livePinSignature String
+    plug             Plug    @relation(fields: [plugId], references: [id])
+    plugId           String
 
-    signedPermission SignedPermission @relation(fields: [signedPermissionPermissionId, signedPermissionSignature], references: [permissionId, signature])
-    intent           Intent           @relation(fields: [intentId], references: [id])
-
-    @@id([signedPermissionPermissionId, signedPermissionSignature])
+    @@id([livePinId, livePinSignature, plugId])
 }
 
-model Intent {
+model Plug {
     id String @id
 
-    transaction         Transaction                @relation(fields: [transactionTo, transactionGasLimit, transactionData], references: [to, gasLimit, data])
-    transactionTo       String
-    transactionGasLimit BigInt
-    transactionData     String
-    authority           SignedPermissionOnIntent[]
+    current        Current         @relation(fields: [currentGround, currentVoltage, currentData], references: [ground, voltage, data])
+    currentGround  String
+    currentVoltage BigInt
+    currentData    String
+    pins           LivePinOnPlug[]
 
-    intents IntentOnIntents[]
+    plugs PlugOnPlugs[]
 }
 
-model ReplayProtection {
+model Breaker {
     nonce BigInt
     queue BigInt
 
-    intents Intents[]
+    plugs Plugs[]
 
     @@id([nonce, queue])
 }
 
-model IntentOnIntents {
-    intentId  String
-    intentsId String
+model PlugOnPlugs {
+    plug    Plug   @relation(fields: [plugId], references: [id])
+    plugId  String
+    plugs   Plugs  @relation(fields: [plugsId], references: [id])
+    plugsId String
 
-    intent  Intent  @relation(fields: [intentId], references: [id])
-    intents Intents @relation(fields: [intentsId], references: [id])
-
-    @@id([intentId, intentsId])
+    @@id([plugId, plugsId])
 }
 
-model Intents {
+model Plugs {
     id String @id
 
-    domain                  Domain @relation(fields: [domainVerifyingContract, domainName, domainVersion, domainChainId], references: [verifyingContract, name, version, chainId])
+    domain                  Domain        @relation(fields: [domainVerifyingContract, domainName, domainVersion, domainChainId], references: [verifyingContract, name, version, chainId])
     domainVerifyingContract String
     domainName              String
     domainVersion           String
     domainChainId           Int
+    plugs                   PlugOnPlugs[]
+    breaker                 Breaker       @relation(fields: [breakerNonce, breakerQueue], references: [nonce, queue])
+    breakerNonce            BigInt
+    breakerQueue            BigInt
 
-    batch                 IntentOnIntents[]
-    replayProtection      ReplayProtection  @relation(fields: [replayProtectionNonce, replayProtectionQueue], references: [nonce, queue])
-    replayProtectionNonce BigInt
-    replayProtectionQueue BigInt
-
-    signedIntents SignedIntents[]
+    signedPlugs LivePlugs[]
 }
 
-model SignedIntents {
-    intents   Intents @relation(fields: [intentsId], references: [id])
-    intentsId String
-
+model LivePlugs {
+    plugs     Plugs  @relation(fields: [plugsId], references: [id])
+    plugsId   String
     signature String
 
     address   Address @relation(fields: [addressId], references: [id])
     addressId String
 
-    @@id([intentsId, signature])
+    @@id([plugsId, signature])
 }
 
 model Address {
     id String @id
 
-    signedPermissions SignedPermission[]
-    signedIntents     SignedIntents[]
+    signedPins  LivePin[]
+    signedPlugs LivePlugs[]
 }
